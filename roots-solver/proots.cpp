@@ -276,8 +276,30 @@ vector<double> edp(double u, double v, vector<double> coeff)
 int main()
 {
 	vector<double> a{ -4., 0., -2.};
-	vector<double> b = edp(1, 3, a);
-	cout << b;
+	vector<double> u{0, 0},
+		r{1, 1};
+	double epsilon = 1e-5;
+	while (abs(sum(r)) > epsilon)
+	{
+		cout << "多项式分解：\n";
+		vector<double> b = edp(u[0], u[1], a);
+		cout << b << '\n';
+
+		cout << "求逆：\n";
+		vector<vector<double>> z{ {-b[0], -1}, {0, -b[0]} };
+		//cout << z << '\n';
+		z = transpose(inverse(z));
+		cout << z << '\n';
+		
+		cout << "余项：\n";
+		r = { b[b.size() - 2], b[b.size() - 1] };
+		cout << r << '\n';
+
+		cout << "牛顿迭代：\n";
+		u = sub(u, mul(z, r));
+		cout << u << '\n';
+	}
+	
 	//vector<double> e{ -2000., -100., 20., 1. };
 	//int iteration = 13;
 	//while (iteration--)
