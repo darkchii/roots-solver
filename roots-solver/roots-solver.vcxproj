@@ -139,9 +139,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="matrix.h" />
     <ClInclude Include="proots.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="matrix.cpp" />
     <ClCompile Include="proots.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

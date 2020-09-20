@@ -229,6 +229,15 @@ vector<vector<double>> mul(vector<vector<double>> a, vector<vector<double>> b)
 	return r;
 }
 
+double dot(vector<double> a, vector<double> b)
+{
+	assert(a.size() == b.size());
+	double c = 0.;
+	for (int i = 0; i < a.size(); i++)
+		c += a[i] * b[i];
+	return c;
+}
+
 vector<vector<double>> transpose(vector<vector<double>> a)
 {
 	for (int i = 0; i < a.size(); i++)
@@ -273,31 +282,88 @@ vector<double> edp(double u, double v, vector<double> coeff)
 	return b;
 }
 
-int main()
+void polynomial(vector<double> coeff, vector<vector<double>>& quads)
 {
-	vector<double> a{ -4., 0., -2.};
-	vector<double> u{0, 0},
-		r{1, 1};
-	double epsilon = 1e-5;
+	if (coeff.size() < 3)
+	{
+		quads.push_back(coeff);
+		return;
+	}
+
+	vector<double> u{ 3, 2 }, r{ 1, 1 }, b;
+	const double epsilon = 1e-5;
 	while (abs(sum(r)) > epsilon)
 	{
 		cout << "多项式分解：\n";
-		vector<double> b = edp(u[0], u[1], a);
+		vector<double> a = edp(u[0], u[1], coeff);
+		cout << a << '\n';
+
+		b = { a.rbegin() + 2, a.rend() };
 		cout << b << '\n';
 
+		cout << "余项：\n";
+		r = { a.end() - 2, a.end() };
+		cout << r << '\n';
+
 		cout << "求逆：\n";
-		vector<vector<double>> z{ {-b[0], -1}, {0, -b[0]} };
+		vector<vector<double>> z;
+		if (b.size() > 1)
+			z = { {-b[0], -b[1]}, {0, -b[0]} };
+		else
+			z = { {-b[0], -1}, {0, -b[0]} };
 		//cout << z << '\n';
 		z = transpose(inverse(z));
 		cout << z << '\n';
-		
-		cout << "余项：\n";
-		r = { b[b.size() - 2], b[b.size() - 1] };
-		cout << r << '\n';
 
 		cout << "牛顿迭代：\n";
 		u = sub(u, mul(z, r));
 		cout << u << '\n';
+	}
+	quads.push_back(u);
+
+	if (b.size() > 2) polynomial(b, quads);
+	else quads.push_back({ b.rbegin(), b.rend() });
+}
+
+int main()
+{
+	vector<vector<double>> quads;
+	vector<double> a{ 1, 11. / 6., -33. / 6., -33. / 6., 11. / 6. };
+	
+	polynomial(a, quads);
+	int i = 0;
+	for (auto e : quads)
+	{
+		if (e.size() == 2)
+		{
+			double discriminant = e[0] * e[0] - 4 * e[1];
+			double r1 = -e[0] / 2.;
+			double r2 = std::sqrt(std::abs(discriminant)) / 2.;
+			if (discriminant == 0)
+			{
+				cout << "x_" << i << " = " << r1 << '\n';
+				i++;
+			}
+			else if (discriminant > 0)
+			{
+				cout << "x_" << i << " = " << r1 + r2 << '\n';
+				i++;
+				cout << "x_" << i << " = " << r1 - r2 << '\n';
+				i++;
+			}
+			else
+			{
+				cout << "x_" << i << " = " << r1 << " + " << r2 << "i\n";
+				i++;
+				cout << "x_" << i << " = " << r1 << " - " << r2 << "i\n";
+				i++;
+			}
+		}
+		else if (e.size() == 1)
+		{
+			cout << "x_" << i << " = " << -e[0] << '\n';
+			i++;
+		}
 	}
 	
 	//vector<double> e{ -2000., -100., 20., 1. };
